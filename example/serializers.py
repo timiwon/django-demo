@@ -21,3 +21,4 @@ class ArticleListRequestSerializer(serializers.Serializer):
     page = serializers.IntegerField(default=1)
     per_page = serializers.IntegerField(default=10)
     owner_only = serializers.BooleanField(default=False)
+    test = serializers.CharField(required=True)
