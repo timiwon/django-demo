@@ -1,5 +1,7 @@
+from typing import Type
 from injector import inject
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Model
 
 from . import AbstractArticleService
 from ..repositories import AbstractArticleRepository
@@ -9,9 +11,6 @@ class ArticleService(AbstractArticleService):
     @inject
     def __init__(self, repo: AbstractArticleRepository):
         self.repo = repo
-
-    def get_by_id(self, id: str):
-        return self.repo.get_by_id(id)
 
     def get_list(self, owner_only: bool, page: int, per_page: int, user: AbstractUser):
         if owner_only:
@@ -23,11 +22,12 @@ class ArticleService(AbstractArticleService):
         args = {**data, 'owner': user}
         return self.repo.create(args)
     
-    def update(self, id, data):
-        print('--------')
-        print(data)
-        self.repo.update(id, data)
-        return self.get_by_id(id)
-    
-    def delete(self, id):
-        return self.repo.delete(id)
+    def update(self, obj: Type[Model], data: Article):
+        for field, value in data.items():
+            setattr(obj, field, value)
+        obj.save()
+
+        return obj
+
+    def delete(self, obj: Type[Model]):
+        return obj.delete()

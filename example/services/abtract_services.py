@@ -1,12 +1,11 @@
 from abc import ABC, abstractmethod
+from typing import Type
 from django.contrib.auth.models import AbstractUser
+from django.db.models import Model
 
 from ..types import Article
 
 class AbstractArticleService(ABC):
-    @abstractmethod
-    def get_by_id(self, id: str): ...
-
     @abstractmethod
     def get_list(self, owner_only: bool, user: AbstractUser): ...
 
@@ -14,7 +13,7 @@ class AbstractArticleService(ABC):
     def create(self, data: Article): ...
 
     @abstractmethod
-    def update(self, id: str, data: Article): ...
+    def update(self, obj: Type[Model], data: Article): ...
 
     @abstractmethod
     def delete(self, id: str): ...
