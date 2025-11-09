@@ -2,6 +2,7 @@ from django.core.exceptions import ValidationError as DjangoValidationError
 
 from rest_framework.exceptions import ValidationError as DRFValidationError
 from rest_framework.views import exception_handler as drf_exception_handler
+from rest_framework.response import Response
 
 
 def exception_handler(exc, context):
@@ -29,5 +30,10 @@ def exception_handler(exc, context):
             'status_code': response.status_code,
             'errors': response.data
         }
+    else:
+        response = Response(data={
+            'status_code': 500,
+            'errors': str(exc)
+        }, status=500)
 
     return response

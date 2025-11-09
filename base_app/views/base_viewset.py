@@ -32,13 +32,18 @@ class BaseViewSet(viewsets.ViewSet, viewsets.GenericViewSet):
     def get_serializer_class(self):
         raise Exception('get_serializer_class method is required in extended class of BaseViewSet')
     
-    def validate_request_data(self, serializer_class: Type[Serializer], data):
+    def get_object(self):
+        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
+        self.check_object_permissions(self.request, obj)
+        return obj
+
+    def _validate_request_data(self, serializer_class: Type[Serializer], data):
         serializer: Type[Serializer] = serializer_class(data=data)
         serializer.is_valid(raise_exception=True)
 
         return serializer.data
     
-    def get_partial_update_data(self, serializer_class: Type[Serializer], data):
+    def _get_partial_update_data(self, serializer_class: Type[Serializer], data):
         obj = self.get_object()
         serializer = serializer_class(obj, data=data, partial=True)
         serializer.is_valid(raise_exception=True)
@@ -46,12 +51,7 @@ class BaseViewSet(viewsets.ViewSet, viewsets.GenericViewSet):
         args = {**model_to_dict(obj), **data}
         return args
 
-    def get_object(self):
-        obj = get_object_or_404(self.get_queryset(), pk=self.kwargs["pk"])
-        self.check_object_permissions(self.request, obj)
-        return obj
-
-    def format_response(self, data, many=False):
+    def _format_response(self, data, many=False):
         if many:
             page = self.paginate_queryset(data)
             if page is not None:

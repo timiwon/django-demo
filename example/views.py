@@ -35,15 +35,15 @@ class ArticleViewSet(BaseViewSet):
 
 
     def list(self, request: HttpRequest):
-        validated_data = self.validate_request_data(ArticleListRequestSerializer, request.GET)
+        validated_data = self._validate_request_data(ArticleListRequestSerializer, request.GET)
 
         args = {**validated_data, 'user': request.user}
         articles = self.service.get_list(**args)
 
-        return self.format_response(articles, many=True)
+        return self._format_response(articles, many=True)
 
     def create(self, request):
-        validated_data = self.validate_request_data(ArticleSerializer, request.data)
+        validated_data = self._validate_request_data(ArticleSerializer, request.data)
         article = self.service.create(validated_data, request.user)
 
         result = self.get_serializer(article)
@@ -51,22 +51,22 @@ class ArticleViewSet(BaseViewSet):
 
     def retrieve(self, request: HttpRequest, pk=None):
         try:
-            return self.format_response(self.get_object())
+            return self._format_response(self.get_object())
         except Exception as e:
             raise APIException(f"error {str(e)}")
 
     def update(self, request, pk=None):
-        validated_data = self.validate_request_data(ArticleSerializer, request.data)
+        validated_data = self._validate_request_data(ArticleSerializer, request.data)
 
         article = self.service.update(self.get_object(), validated_data)
-        return self.format_response(article)
+        return self._format_response(article)
 
     def partial_update(self, request, pk=None):
-        args = self.get_partial_update_data(ArticleSerializer, request.data)
+        args = self._get_partial_update_data(ArticleSerializer, request.data)
         del args['owner']
 
         result = self.service.update(self.get_object(), args)
-        return self.format_response(result)
+        return self._format_response(result)
 
     def destroy(self, request, pk=None):
         self.service.delete(self.get_object())
